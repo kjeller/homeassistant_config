@@ -1,0 +1,65 @@
+homeassistant:
+  name: Home
+  latitude: !secret home_latitude          
+  longitude: !secret home_longitude 
+  unit_system: metric  
+  time_zone: Europe/Stockholm  
+  temperature_unit: C
+
+group:      !include groups.yaml
+automation: !include automations.yaml
+script:     !include scripts.yaml
+scene:      !include scenes.yaml
+
+# Auto-detect devices
+discovery:
+
+# Configure a default setup of Home Assistant (frontend, api, etc)
+default_config:
+
+# Uses ui-lovelace.yaml instead of UI
+lovelace:
+  mode: yaml
+  resources:
+    - url: /local/lovelace-valetudo-map-card/valetudo-map-card.js
+      type: js
+
+# Python scripts
+python_script:
+
+logger:
+  default: error
+  logs:
+    homeassistant.component.python_script: warning
+    homeassistant.component.python_script.hello_world.py: debug
+
+mqtt:
+  broker: localhost # Mosquitto MQTT server is on the same device
+  port: 1883 
+  certificate: auto
+
+# Robot vacuum configuration
+vacuum:
+  - platform: mqtt
+    name: "robot"
+    schema: state
+    supported_features:
+      - start
+      - pause
+      - stop
+      - return_home
+      - battery
+      - status
+      - locate
+      - clean_spot
+      - fan_speed
+      - send_command
+    command_topic: "valetudo/robot/command"
+    state_topic: "valetudo/robot/state"
+    set_fan_speed_topic: "valetudo/robot/set_fan_speed"
+    fan_speed_list:
+      - min
+      - medium
+      - high
+      - max
+    send_command_topic: "valetudo/robot/send_command"

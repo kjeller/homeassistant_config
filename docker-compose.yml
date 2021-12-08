@@ -1,0 +1,42 @@
+version: '3.2'
+services: 
+  homeassistant:
+    container_name: homeassistant
+    image: homeassistant/raspberrypi3-homeassistant:stable
+    network_mode: host
+    volumes:
+      - type: bind
+        source: "${HOMEASSISTANT_CONF_PATH}"
+        target: /config
+      - /etc/localtime:/etc/localtime:ro
+    restart: unless-stopped
+    privileged: true
+  
+  mosquitto:
+    container_name: mqtt-broker
+    image: eclipse-mosquitto:latest
+    network_mode: host
+    ports:
+      - 1883:1883
+      - 9001:9001
+    volumes:
+      - type: bind
+        source: "${MOSQUITTO_CONF_PATH}/mosquitto.conf"
+        target: /mosquitto/config/mosquitto.conf
+      - type: bind
+        source: "${MOSQUITTO_CONF_PATH}/data"
+        target: /mosquitto/data
+      - type: bind
+        source: "${MOSQUITTO_CONF_PATH}/log"
+        target: /mosquitto/log
+
+  deconz:
+    container_name: deconz
+    image: marthoc/deconz
+    network_mode: host
+    volumes:
+      - type: bind
+        source: "${DECONZ_CONF_PATH}"
+        target: /root/.local/share/dresden-elektronik/deCONZ
+    devices:
+      - /dev/ttyACM0
